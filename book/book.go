@@ -39,5 +39,15 @@ func NewBook(c *fiber.Ctx) error {
 }
 
 func DeleteBook(c *fiber.Ctx) error {
-	return c.SendString("Delete Book")
+	id := c.Params("id")
+	db := database.DBConn
+
+	var book Book
+	db.First(&book, id)
+	if book.Title == "" {
+		c.Status(500).SendString("No Book Found with ID")
+		return
+	}
+	db.Delete(&book)
+	return c.SendString("Book Successfully deleted")
 }
