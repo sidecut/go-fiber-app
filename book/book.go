@@ -28,11 +28,12 @@ func GetBook(c *fiber.Ctx) error {
 	return c.JSON(book)
 }
 
-func NewBook(c *fiber.Ctx) (err error) {
+func NewBook(c *fiber.Ctx) error {
 	db := database.DBConn
 	book := new(Book)
-	if err = c.BodyParser(book); err != nil {
-		return c.Status(503).JSON(err)
+	if err := c.BodyParser(book); err != nil {
+		fiberError := err.(*fiber.Error)
+		return c.Status(fiberError.Code).JSON(err)
 	}
 	db.Create(&book)
 	return c.JSON(book)
