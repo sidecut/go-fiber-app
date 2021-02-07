@@ -37,9 +37,9 @@ func initDatabase() {
 func main() {
 	app := fiber.New()
 	initDatabase()
+	defer database.DBConn.Close()
 
 	setupRoutes(app)
 	app.Listen(":3000")
 
-	defer database.DBConn.Close()
 }
