@@ -38,7 +38,7 @@ func NewBook(c *fiber.Ctx) error {
 	return c.JSON(book)
 }
 
-func DeleteBook(c *fiber.Ctx) error {
+func DeleteBook(c *fiber.Ctx) (err error) {
 	id := c.Params("id")
 	db := database.DBConn
 
