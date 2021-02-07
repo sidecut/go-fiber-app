@@ -29,7 +29,13 @@ func GetBook(c *fiber.Ctx) error {
 }
 
 func NewBook(c *fiber.Ctx) error {
-	return c.SendString("New Book")
+	db := database.DBConn
+	var book Book
+	book.Title = "1984"
+	book.Author = "George Orwell"
+	book.Rating = 5
+	db.Create(&book)
+	return c.JSON(book)
 }
 
 func DeleteBook(c *fiber.Ctx) error {
