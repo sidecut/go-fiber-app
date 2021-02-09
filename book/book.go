@@ -24,7 +24,10 @@ func GetBook(c *fiber.Ctx) error {
 	id := c.Params("id")
 	db := database.DBConn
 	var book Book
-	db.Find(&book, id)
+	result := db.Find(&book, id)
+	if result.Error != nil {
+		return c.Status(fiber.StatusNotFound).SendString(result.Error.Error())
+	}
 	return c.JSON(book)
 }
 
@@ -45,7 +48,7 @@ func DeleteBook(c *fiber.Ctx) (err error) {
 	var book Book
 	db.First(&book, id)
 	if book.Title == "" {
-		c.Status(500).SendString("No Book Found with ID")
+		c.Status(fiber.StatusNotFound).SendString("No Book Found with ID")
 		return
 	}
 	db.Delete(&book)
