@@ -7,6 +7,7 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/sidecut/go-fiber-app/book"
 	"github.com/sidecut/go-fiber-app/database"
 )
@@ -37,6 +38,8 @@ func initDatabase() {
 
 func main() {
 	e := echo.New()
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
 	initDatabase()
 	defer database.DBConn.Close()
 
