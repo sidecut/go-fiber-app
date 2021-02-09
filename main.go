@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"github.com/sidecut/go-fiber-app/book"
@@ -36,6 +37,7 @@ func initDatabase() {
 
 func main() {
 	app := fiber.New()
+	app.Use(logger.New())
 	initDatabase()
 	defer database.DBConn.Close()
 
