@@ -2,25 +2,26 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"github.com/sidecut/go-fiber-app/book"
 	"github.com/sidecut/go-fiber-app/database"
 )
 
-func helloWorld(c *fiber.Ctx) error {
-	return c.SendString("Hello, World!")
+func helloWorld(c *gin.Context) {
+	c.String(http.StatusOK, "Hello, world!")
 }
 
-func setupRoutes(app *fiber.App) {
-	app.Get("/", helloWorld)
+func setupRoutes(app *gin.Engine) {
+	app.GET("/", helloWorld)
 
-	app.Get("/api/v1/book", book.GetBooks)
-	app.Get("/api/v1/book/:id", book.GetBook)
-	app.Post("/api/v1/book", book.NewBook)
-	app.Delete("/api/v1/book/:id", book.DeleteBook)
+	app.GET("/api/v1/book", book.GetBooks)
+	app.GET("/api/v1/book/:id", book.GetBook)
+	app.POST("/api/v1/book", book.NewBook)
+	app.DELETE("/api/v1/book/:id", book.DeleteBook)
 }
 
 func initDatabase() {
@@ -35,11 +36,10 @@ func initDatabase() {
 }
 
 func main() {
-	app := fiber.New()
+	r := gin.Default()
 	initDatabase()
 	defer database.DBConn.Close()
 
-	setupRoutes(app)
-	app.Listen(":8080")
-
+	setupRoutes(r)
+	r.Run()
 }

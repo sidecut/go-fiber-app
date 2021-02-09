@@ -1,7 +1,10 @@
 package book
 
 import (
-	"github.com/gofiber/fiber/v2"
+	"errors"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"github.com/sidecut/go-fiber-app/database"
 )
@@ -13,41 +16,42 @@ type Book struct {
 	Rating int    `json:"rating"`
 }
 
-func GetBooks(c *fiber.Ctx) error {
+func GetBooks(c *gin.Context) {
 	db := database.DBConn
 	var books []Book
 	db.Find(&books)
-	return c.JSON(books)
+	c.JSON(http.StatusOK, books)
 }
 
-func GetBook(c *fiber.Ctx) error {
-	id := c.Params("id")
+func GetBook(c *gin.Context) {
+	id := c.Param("id")
 	db := database.DBConn
 	var book Book
 	db.Find(&book, id)
-	return c.JSON(book)
+	c.JSON(http.StatusOK, book)
 }
 
-func NewBook(c *fiber.Ctx) error {
+func NewBook(c *gin.Context) {
 	db := database.DBConn
 	book := new(Book)
-	if err := c.BodyParser(book); err != nil {
-		return c.Status(err.(*fiber.Error).Code).JSON(err)
+	if err := c.BindJSON(book); err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
 	}
 	db.Create(&book)
-	return c.JSON(book)
+	c.JSON(http.StatusOK, book)
 }
 
-func DeleteBook(c *fiber.Ctx) (err error) {
-	id := c.Params("id")
+func DeleteBook(c *gin.Context) {
+	id := c.Param("id")
 	db := database.DBConn
 
 	var book Book
 	db.First(&book, id)
 	if book.Title == "" {
-		c.Status(500).SendString("No Book Found with ID")
+		c.AbortWithError(http.StatusNotFound, errors.New("No Book Found with ID")) //,  "No Book Found with ID"))
 		return
 	}
 	db.Delete(&book)
-	return c.SendString("Book Successfully deleted")
+	c.String(http.StatusOK, "Book Successfully deleted")
 }
